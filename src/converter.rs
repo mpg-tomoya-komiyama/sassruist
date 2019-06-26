@@ -15,14 +15,19 @@ pub fn perform(text: &str) -> String {
     }
 
     let mut parent = lines.remove(0);
+    let mut past = parent.clone();
     let mut converted_lines = vec![parent.text.clone()];
     for mut line in lines {
         if parent.indent < line.indent {
+            if parent.indent < past.indent && past.indent < line.indent {
+                parent = past;
+            }
             line.resolve(&parent);
         } else if parent.indent == line.indent {
             parent = line.clone();
         }
-        converted_lines.push(line.text);
+        converted_lines.push(line.text.clone());
+        past = line.clone();
     }
     converted_lines.join("\n")
 }
@@ -115,9 +120,19 @@ mod tests {
 
     #[test]
     fn test_perform() {
-        let lines = ["a {", "  &_b {", "  }", "}"].join("\n");
-        let expec = ["a {", "  a_b {", "  }", "}"].join("\n");
-        assert_eq!(perform(&lines), expec);
+        let data = [
+            [
+                ["a {", " &_b {", " }", "}"].join("\n"),
+                ["a {", " a_b {", " }", "}"].join("\n"),
+            ],
+            [
+                ["a {", " &_b {", "  &-c {}", " }", "}"].join("\n"),
+                ["a {", " a_b {", "  a_b-c {}", " }", "}"].join("\n"),
+            ],
+        ];
+        for d in data.iter() {
+            assert_eq!(perform(&d[0]), d[1]);
+        }
     }
 
     #[test]
