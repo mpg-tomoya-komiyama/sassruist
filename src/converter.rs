@@ -17,26 +17,26 @@ pub fn perform(text: &str) -> String {
     let mut stack: Vec<Line> = vec![];
     let mut converted_lines: Vec<String> = vec![];
     for mut line in lines {
-        let stack_len = stack.len();
-        if stack_len == 0 {
+        if stack.len() == 0 {
             converted_lines.push(line.text.clone());
             stack.push(line);
         } else {
-            let before = stack[stack_len - 1].clone();
-            if before.indent == line.indent {
-                // same scope
-                stack[stack_len - 1] = line.clone();
-                if stack.len() >= 2 {
-                    line.resolve(&stack[stack_len - 2]);
-                }
-            } else if before.indent < line.indent {
-                // nest scope
+            let before = stack[stack.len() - 1].clone();
+            if before.indent < line.indent {
+                // deep scope
                 line.resolve(&before);
                 stack.push(line.clone());
             } else {
-                // shallow scope
-                stack.remove(stack_len - 1);
-                stack[stack_len - 2] = line.clone();
+                // same or shallow scope
+                // pop stacked lines having deep scope
+                while stack.len() > 0 && stack[stack.len() - 1].indent >= line.indent {
+                    stack.remove(stack.len() - 1);
+                }
+                // parent line may not exist
+                if stack.len() > 0 {
+                    line.resolve(&stack[stack.len() - 1]);
+                }
+                stack.push(line.clone());
             }
             converted_lines.push(line.text.clone());
         }
