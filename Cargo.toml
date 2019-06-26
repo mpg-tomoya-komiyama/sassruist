@@ -1,0 +1,8 @@
+[package]
+name = "sassruist"
+version = "0.1.0"
+authors = ["mpg-tomoya-komiyama <tomoya.komiyama@medpeer.co.jp>"]
+edition = "2018"
+
+[dependencies]
+clap = "2.33.0"
