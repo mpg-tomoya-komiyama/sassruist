@@ -71,10 +71,18 @@ fn parse_selectors(line: &str) -> Vec<String> {
 
 fn resolve_umpersand(line: &str, parent_selectors: Vec<String>) -> String {
     let mut selectors: Vec<String> = vec![];
-    for p in parent_selectors {
-        selectors.push(line.replace("&", &p));
+    let src_selectors = parse_selectors(line);
+    for s in src_selectors {
+        for p in &parent_selectors {
+            selectors.push(s.replace("&", &p));
+        }
     }
-    selectors.join(", ")
+    let re = Regex::new(r"\{+.*").unwrap();
+    if let Some(cap) = re.captures(line) {
+        selectors.join(", ") + " " + &cap[0]
+    } else {
+        selectors.join(", ")
+    }
 }
 
 #[cfg(test)]
@@ -114,9 +122,11 @@ mod tests {
             text: "&_a".to_string(),
         };
         let data = [
-            ["p", "&_a", "p_a"],
-            ["p q", "&_a", "p q_a"],
-            ["p, q", "&_a", "p_a, q_a"],
+            ["p {", "& {", "& {"],
+            ["p {", "& > a {", "& > a {"],
+            ["p {", "&_a {", "p_a {"],
+            ["p q {", "&_a {", "p q_a {"],
+            ["p, q {", "&_a {", "p_a, q_a {"],
         ];
         for d in data.iter() {
             parent.text = d[0].to_string();
@@ -183,6 +193,14 @@ mod tests {
         assert_eq!(
             resolve_umpersand("&_a", vec!("p".to_string(), "q".to_string())),
             "p_a, q_a"
+        );
+        assert_eq!(
+            resolve_umpersand("&_a {", vec!("p".to_string(), "q".to_string())),
+            "p_a, q_a {"
+        );
+        assert_eq!(
+            resolve_umpersand("&_a, &_b {}", vec!("p".to_string(), "q".to_string())),
+            "p_a, q_a, p_b, q_b {}"
         );
     }
 }
