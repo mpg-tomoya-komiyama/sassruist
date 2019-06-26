@@ -1,0 +1,20 @@
+a {
+  a_b {
+    a_b-c {
+      color: red;
+    }
+    &:hover {
+      color: blue;
+    }
+    a_b-cc { color: black; }
+    & > * { color: black; }
+  }
+  ad {
+    color: yellow;
+  }
+  f, g {
+    f_h, g_h {
+      color: white;
+    }
+  }
+}
