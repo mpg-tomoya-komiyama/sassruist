@@ -9,25 +9,37 @@ struct Line {
 }
 
 pub fn perform(text: &str) -> String {
-    let mut lines = parse_lines(text);
+    let lines = parse_lines(text);
     if lines.len() == 0 {
         return text.to_string();
     }
 
-    let mut parent = lines.remove(0);
-    let mut past = parent.clone();
-    let mut converted_lines = vec![parent.text.clone()];
+    let mut stack: Vec<Line> = vec![];
+    let mut converted_lines: Vec<String> = vec![];
     for mut line in lines {
-        if parent.indent < line.indent {
-            if parent.indent < past.indent && past.indent < line.indent {
-                parent = past;
+        let stack_len = stack.len();
+        if stack_len == 0 {
+            converted_lines.push(line.text.clone());
+            stack.push(line);
+        } else {
+            let before = stack[stack_len - 1].clone();
+            if before.indent == line.indent {
+                // same scope
+                stack[stack_len - 1] = line.clone();
+                if stack.len() >= 2 {
+                    line.resolve(&stack[stack_len - 2]);
+                }
+            } else if before.indent < line.indent {
+                // nest scope
+                line.resolve(&before);
+                stack.push(line.clone());
+            } else {
+                // shallow scope
+                stack.remove(stack_len - 1);
+                stack[stack_len - 2] = line.clone();
             }
-            line.resolve(&parent);
-        } else if parent.indent == line.indent {
-            parent = line.clone();
+            converted_lines.push(line.text.clone());
         }
-        converted_lines.push(line.text.clone());
-        past = line.clone();
     }
     converted_lines.join("\n")
 }
@@ -128,6 +140,18 @@ mod tests {
             [
                 ["a {", " &_b {", "  &-c {}", " }", "}"].join("\n"),
                 ["a {", " a_b {", "  a_b-c {}", " }", "}"].join("\n"),
+            ],
+            [
+                ["a {", " b {}", " &_b {}", "}"].join("\n"),
+                ["a {", " b {}", " a_b {}", "}"].join("\n"),
+            ],
+            [
+                ["a {", " b {}", " &_b {}", " &_c {}", "}"].join("\n"),
+                ["a {", " b {}", " a_b {}", " a_c {}", "}"].join("\n"),
+            ],
+            [
+                ["a {", " b {", "  c {}", " }", " &_d {}", "}"].join("\n"),
+                ["a {", " b {", "  c {}", " }", " a_d {}", "}"].join("\n"),
             ],
         ];
         for d in data.iter() {
