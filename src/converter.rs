@@ -9,8 +9,22 @@ struct Line {
 }
 
 pub fn perform(text: &str) -> String {
-    let lines = parse_lines(text);
-    return text.to_string();
+    let mut lines = parse_lines(text);
+    if lines.len() == 0 {
+        return text.to_string();
+    }
+
+    let mut parent = lines.remove(0);
+    let mut converted_lines = vec![parent.text.clone()];
+    for mut line in lines {
+        if parent.indent < line.indent {
+            line.resolve(&parent);
+        } else if parent.indent == line.indent {
+            parent = line.clone();
+        }
+        converted_lines.push(line.text);
+    }
+    converted_lines.join("\n")
 }
 
 impl Line {
@@ -22,8 +36,8 @@ impl Line {
         }
     }
 
-    fn relove(&mut self, parent: &Line) {
-        if (!self.has_umpersand()) {
+    fn resolve(&mut self, parent: &Line) {
+        if !self.has_umpersand() {
             return;
         }
         let parent_selectors = parse_selectors(&parent.text);
@@ -45,12 +59,12 @@ fn parse_lines(text: &str) -> Vec<Line> {
 }
 
 fn count_indent(line: &str) -> usize {
-    for (index, s) in line.to_string().as_str().chars().enumerate() {
-        if s != ' ' && s != '\t' {
-            return index;
-        }
+    let pre_re = Regex::new(r"( |\t)*").unwrap();
+    if let Some(cap) = pre_re.captures(line) {
+        cap[0].len()
+    } else {
+        0
     }
-    return 0;
 }
 
 fn parse_selectors(line: &str) -> Vec<String> {
@@ -77,17 +91,34 @@ fn resolve_umpersand(line: &str, parent_selectors: Vec<String>) -> String {
             selectors.push(s.replace("&", &p));
         }
     }
+
+    let mut resolved = "".to_string();
+
+    let pre_re = Regex::new(r"( |\t)*").unwrap();
+    if let Some(cap) = pre_re.captures(line) {
+        resolved = cap[0].to_string();
+    }
+
+    resolved = resolved + &selectors.join(", ").to_string();
+
     let re = Regex::new(r"\{+.*").unwrap();
     if let Some(cap) = re.captures(line) {
-        selectors.join(", ") + " " + &cap[0]
-    } else {
-        selectors.join(", ")
+        resolved = resolved + " " + &cap[0];
     }
+
+    resolved
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_perform() {
+        let lines = ["a {", "  &_b {", "  }", "}"].join("\n");
+        let expec = ["a {", "  a_b {", "  }", "}"].join("\n");
+        assert_eq!(perform(&lines), expec);
+    }
 
     #[test]
     fn test_has_umpersand() {
@@ -110,7 +141,7 @@ mod tests {
     }
 
     #[test]
-    fn test_relove() {
+    fn test_resolve() {
         let mut parent = Line {
             index: 0,
             indent: 0,
@@ -131,7 +162,7 @@ mod tests {
         for d in data.iter() {
             parent.text = d[0].to_string();
             line.text = d[1].to_string();
-            line.relove(&parent);
+            line.resolve(&parent);
             assert_eq!(line.text, d[2]);
         }
     }
@@ -188,8 +219,8 @@ mod tests {
     }
 
     #[test]
-    fn test_relove_umpersand() {
-        assert_eq!(resolve_umpersand("&_a", vec!("p".to_string())), "p_a");
+    fn test_resolve_umpersand() {
+        assert_eq!(resolve_umpersand(" &_a", vec!("p".to_string())), " p_a");
         assert_eq!(
             resolve_umpersand("&_a", vec!("p".to_string(), "q".to_string())),
             "p_a, q_a"
