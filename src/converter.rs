@@ -1,3 +1,6 @@
+extern crate regex;
+use regex::Regex;
+
 #[derive(Debug, PartialEq, Clone)]
 struct Line {
     index: usize,
@@ -8,6 +11,16 @@ struct Line {
 pub fn perform(text: &str) -> String {
     let lines = parse_lines(text);
     return text.to_string();
+}
+
+impl Line {
+    fn has_umpersand(&self) -> bool {
+        let re = Regex::new(r"(^| |\t)\&($|[^{: +>])").unwrap();
+        match re.captures(&self.text) {
+            Some(_) => true,
+            None => false,
+        }
+    }
 }
 
 fn parse_lines(text: &str) -> Vec<Line> {
@@ -35,6 +48,26 @@ fn count_indent(line: &str) -> usize {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_has_umpersand() {
+        let mut line = Line {
+            index: 0,
+            indent: 0,
+            text: "".to_string(),
+        };
+        let truthy = ["&", " &", "\t&", "&-", "&_", "&a"];
+        for s in truthy.iter() {
+            line.text = s.to_string();
+            assert!(line.has_umpersand());
+        }
+
+        let falsy = ["a", "& ", "_&", "&:", "&+", "&{", "&>"];
+        for s in falsy.iter() {
+            line.text = s.to_string();
+            assert!(!line.has_umpersand());
+        }
+    }
 
     #[test]
     fn test_parse_lines() {
