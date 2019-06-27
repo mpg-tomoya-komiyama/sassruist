@@ -1,7 +1,6 @@
 #[macro_use]
 extern crate clap;
 extern crate regex;
-extern crate sassruist;
 extern crate walkdir;
 use clap::Arg;
 use regex::Regex;

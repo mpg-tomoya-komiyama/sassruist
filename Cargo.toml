@@ -1,20 +1,24 @@
 [package]
 name = "sassruist"
 version = "0.1.0"
-authors = [ "mpg-tomoya-komiyama <tomoya.komiyama@medpeer.co.jp>" ]
+authors = ["mpg-tomoya-komiyama <tomoya.komiyama@medpeer.co.jp>"]
 edition = "2018"
 
 [dependencies]
-clap = "2.33.0"
+clap = { version = "2.33.0", optional = true }
 regex = "1.1.7"
 wasm-bindgen = "0.2.47"
-walkdir = "2.2.8"
+walkdir = { version = "2.2.8", optional = true }
 
 [lib]
-name = "sassruist"
+name = "sassruist_wasm"
 path = "src/lib.rs"
-crate-type = ["cdylib", "lib"]
+crate-type = ["cdylib"]
 
 [[bin]]
 name = "sassruist"
 path = "src/bin.rs"
+required-features = ["bin"]
+
+[features]
+bin = ["clap", "walkdir"]
