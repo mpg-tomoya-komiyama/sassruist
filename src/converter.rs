@@ -17,6 +17,11 @@ pub fn perform(text: &str) -> String {
     let mut stack: Vec<Line> = vec![];
     let mut converted_lines: Vec<String> = vec![];
     for mut line in lines {
+        if line.empty() {
+            converted_lines.push(line.text.clone());
+            continue;
+        }
+
         if stack.len() == 0 {
             converted_lines.push(line.text.clone());
             stack.push(line);
@@ -45,6 +50,10 @@ pub fn perform(text: &str) -> String {
 }
 
 impl Line {
+    fn empty(&self) -> bool {
+        self.text.trim() == ""
+    }
+
     fn has_umpersand(&self) -> bool {
         let re = Regex::new(r"(^| |\t)\&($|[^{: +>])").unwrap();
         match re.captures(&self.text) {
@@ -176,6 +185,27 @@ mod tests {
         ];
         for d in data.iter() {
             assert_eq!(perform(&d[0]), d[1]);
+        }
+    }
+
+    #[test]
+    fn test_empty() {
+        let mut line = Line {
+            index: 0,
+            indent: 0,
+            text: "".to_string(),
+        };
+
+        let truthy = ["", " ", "\t", "  ", "\t "];
+        for s in truthy.iter() {
+            line.text = s.to_string();
+            assert!(line.empty());
+        }
+
+        let falsy = ["a", " a", "\ta", "  a", "\t a"];
+        for s in falsy.iter() {
+            line.text = s.to_string();
+            assert!(!line.empty());
         }
     }
 
