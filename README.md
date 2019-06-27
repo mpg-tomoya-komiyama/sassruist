@@ -4,16 +4,15 @@ Sassruist is the evil Sass/Scss ampersand buster.
 ## Usage
 ```
 USAGE:
-    sassruist [FLAGS] <file / directory path>
+    sassruist [FLAGS] <path>
 
 FLAGS:
-    -d, --directory    walk directory and convert all sass/scss files
-    -h, --help         Prints help information
-    -o, --overwrite    overwrite original file(s)
-    -V, --version      Prints version information
+    -f, --fix        fix original file(s)
+    -h, --help       Prints help information
+    -V, --version    Prints version information
 
 ARGS:
-    <file / directory path>    target path
+    <path>    target file or directory path
 ```
 
 ## Develop
