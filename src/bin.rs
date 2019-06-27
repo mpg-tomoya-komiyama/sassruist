@@ -104,7 +104,7 @@ fn convert_and_write_file(path: &str) -> Result<(), String> {
     }
 }
 
-fn write_file(text: &str, filepath: &str) -> Result<(), Box<std::error::Error>> {
+fn write_file(text: &str, filepath: &str) -> Result<(), Box<dyn std::error::Error>> {
     let mut file = File::create(filepath)?;
     write!(file, "{}", text)?;
     file.flush()?;
