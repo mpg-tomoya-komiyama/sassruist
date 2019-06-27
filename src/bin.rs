@@ -15,8 +15,8 @@ pub mod parser;
 fn main() {
     let app = app_from_crate!()
         .arg(
-            Arg::with_name("filepath")
-                .help("target filepath")
+            Arg::with_name("file / directory path")
+                .help("target path")
                 .required(true),
         )
         .arg(
@@ -27,7 +27,7 @@ fn main() {
         )
         .arg(
             Arg::with_name("directory")
-                .help("batch execute to the directory")
+                .help("walk directory and convert all sass/scss files")
                 .short("d")
                 .long("directory"),
         );
