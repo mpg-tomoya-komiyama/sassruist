@@ -55,11 +55,7 @@ impl Line {
     }
 
     fn has_umpersand(&self) -> bool {
-        let re = Regex::new(r"(^| |\t)\&($|[^{: +>])").unwrap();
-        match re.captures(&self.text) {
-            Some(_) => true,
-            None => false,
-        }
+        has_umpersand(&self.text)
     }
 
     fn resolve(&mut self, parent: &Line) {
@@ -114,7 +110,11 @@ fn resolve_umpersand(line: &str, parent_selectors: Vec<String>) -> String {
     let src_selectors = parse_selectors(line);
     for s in src_selectors {
         for p in &parent_selectors {
-            selectors.push(s.replace("&", &p));
+            if has_umpersand(&s) {
+                selectors.push(s.replace("&", &p));
+            } else {
+                selectors.push(s.clone());
+            }
         }
     }
 
@@ -133,6 +133,14 @@ fn resolve_umpersand(line: &str, parent_selectors: Vec<String>) -> String {
     }
 
     resolved
+}
+
+fn has_umpersand(selector: &str) -> bool {
+    let re = Regex::new(r"(^| |\t)\&($|[^{: +>.#])").unwrap();
+    match re.captures(selector) {
+        Some(_) => true,
+        None => false,
+    }
 }
 
 #[cfg(test)]
@@ -222,7 +230,7 @@ mod tests {
             assert!(line.has_umpersand());
         }
 
-        let falsy = ["a", "& ", "_&", "&:", "&+", "&{", "&>"];
+        let falsy = ["a", "& ", "_&", "&:", "&+", "&{", "&>", "&.", "&#"];
         for s in falsy.iter() {
             line.text = s.to_string();
             assert!(!line.has_umpersand());

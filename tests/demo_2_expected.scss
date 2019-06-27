@@ -1,9 +1,15 @@
 .introduces {
-  h1 {
+  .a {
     margin: 0;
 
-    h1_a {}
-    .introduces-ttl-sub {
+    .a_a {}
+    .i-t-s {
+      display: block;
+    }
+    &.i-t-s {
+      display: block;
+    }
+    &.i-t-s, .a-t-s {
       display: block;
     }
   }
