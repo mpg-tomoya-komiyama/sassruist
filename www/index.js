@@ -1,4 +1,4 @@
-import * as sassruist from 'sassruist'
+import * as sassruist from '../pkg/sassruist'
 
 document.getElementById('convert').addEventListener('click', convert)
 

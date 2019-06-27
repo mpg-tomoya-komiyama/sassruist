@@ -31,7 +31,7 @@ eval("\"use strict\";\n// Instantiate WebAssembly module\nvar wasmExports = __we
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var sassruist__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! sassruist */ \"../pkg/sassruist.js\");\n\n\ndocument.getElementById('convert').addEventListener('click', convert)\n\nfunction convert () {\n\tconst text = document.getElementById('src').value\n\tconst result = sassruist__WEBPACK_IMPORTED_MODULE_0__[\"return_string\"](text)\n\tdocument.getElementById('result').value = result\n}\n\nconst text = [\n\t'a {',\n\t'  &_b {',\n\t'    &_c {',\n\t'      color: red;',\n\t'    }',\n\t'  }',\n\t'}',\n].join('\\n')\ndocument.getElementById('src').value = text\nconvert()\n\n\n\n//# sourceURL=webpack:///./index.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _pkg_sassruist__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../pkg/sassruist */ \"../pkg/sassruist.js\");\n\n\ndocument.getElementById('convert').addEventListener('click', convert)\n\nfunction convert () {\n\tconst text = document.getElementById('src').value\n\tconst result = _pkg_sassruist__WEBPACK_IMPORTED_MODULE_0__[\"return_string\"](text)\n\tdocument.getElementById('result').value = result\n}\n\nconst text = [\n\t'a {',\n\t'  &_b {',\n\t'    &_c {',\n\t'      color: red;',\n\t'    }',\n\t'  }',\n\t'}',\n].join('\\n')\ndocument.getElementById('src').value = text\nconvert()\n\n\n\n//# sourceURL=webpack:///./index.js?");
 
 /***/ })
 

@@ -3,10 +3,7 @@
 cargo build
 wasm-pack build
 
-cd pkg
-npm link
-
-cd ../www
+cd ./www
+rm -rf dist/
 npm install
-npm link sassruist
 npm run build
