@@ -23,7 +23,7 @@ cargo test
 
 ### Build bin
 ```sh
-cargo build
+cargo build --features bin
 ```
 
 ## Demo
