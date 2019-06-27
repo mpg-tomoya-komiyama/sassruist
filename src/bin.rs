@@ -2,15 +2,14 @@
 extern crate clap;
 extern crate regex;
 extern crate walkdir;
+extern crate sassruist;
 use clap::Arg;
 use regex::Regex;
-use std::fs::metadata;
+use std::fs::{metadata, read_to_string};
 use std::fs::File;
 use std::io::Write;
 use walkdir::WalkDir;
-
 pub mod converter;
-pub mod parser;
 
 fn main() {
     let app = app_from_crate!()
@@ -73,7 +72,7 @@ fn is_file(path: &str) -> bool {
 }
 
 fn convert_file(path: &str) -> Result<(), String> {
-    match parser::parse_file(path) {
+    match parse_file(path) {
         Ok(content) => {
             let text = converter::perform(&content);
             println!("==========\n{}\n==========\n{}", path, text);
@@ -84,7 +83,7 @@ fn convert_file(path: &str) -> Result<(), String> {
 }
 
 fn convert_and_write_file(path: &str) -> Result<(), String> {
-    match parser::parse_file(path) {
+    match parse_file(path) {
         Ok(content) => {
             let result = converter::perform(&content);
             if content != result {
@@ -109,4 +108,9 @@ fn write_file(text: &str, filepath: &str) -> Result<(), Box<dyn std::error::Erro
     write!(file, "{}", text)?;
     file.flush()?;
     Ok(())
+}
+
+fn parse_file(filepath: &str) -> Result<String, Box<dyn std::error::Error>> {
+    let content = read_to_string(filepath)?;
+    Ok(content)
 }

@@ -11,9 +11,9 @@ wasm-bindgen = "0.2.47"
 walkdir = { version = "2.2.8", optional = true }
 
 [lib]
-name = "sassruist_wasm"
+name = "sassruist"
 path = "src/lib.rs"
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "lib"]
 
 [[bin]]
 name = "sassruist"

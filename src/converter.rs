@@ -8,6 +8,18 @@ struct Line {
     text: String,
 }
 
+
+/// Returns converted text resolving evil umpersands
+///
+/// # Examples
+///
+/// ```
+/// use sassruist::converter;
+///
+/// let src = ["a {", " &_b {", " }", "}"].join("\n");
+/// let exp = ["a {", " a_b {", " }", "}"].join("\n");
+/// assert_eq!(converter::perform(&src), exp);
+/// ```
 pub fn perform(text: &str) -> String {
     let lines = parse_lines(text);
     if lines.len() == 0 {
