@@ -9,7 +9,7 @@ struct Line {
 }
 
 
-/// Returns converted text resolving evil umpersands
+/// Returns converted text resolving evil ampersands
 ///
 /// # Examples
 ///
@@ -81,16 +81,16 @@ impl Line {
         re.captures(self.text.trim()).is_some()
     }
 
-    fn has_umpersand(&self) -> bool {
-        has_umpersand(&self.text)
+    fn has_ampersand(&self) -> bool {
+        has_ampersand(&self.text)
     }
 
     fn resolve(&mut self, parent: &Line) {
-        if !self.has_umpersand() {
+        if !self.has_ampersand() {
             return;
         }
         let parent_selectors = parse_selectors(&parent.text);
-        self.text = resolve_umpersand(&self.text, parent_selectors);
+        self.text = resolve_ampersand(&self.text, parent_selectors);
     }
 }
 
@@ -132,12 +132,12 @@ fn parse_selectors(line: &str) -> Vec<String> {
     selectors
 }
 
-fn resolve_umpersand(line: &str, parent_selectors: Vec<String>) -> String {
+fn resolve_ampersand(line: &str, parent_selectors: Vec<String>) -> String {
     let mut selectors: Vec<String> = vec![];
     let src_selectors = parse_selectors(line);
     for s in src_selectors {
         for p in &parent_selectors {
-            if has_umpersand(&s) {
+            if has_ampersand(&s) {
                 selectors.push(s.replace("&", &p));
             } else {
                 selectors.push(s.clone());
@@ -162,7 +162,7 @@ fn resolve_umpersand(line: &str, parent_selectors: Vec<String>) -> String {
     resolved
 }
 
-fn has_umpersand(selector: &str) -> bool {
+fn has_ampersand(selector: &str) -> bool {
     let re = Regex::new(r"(^| |\t)\&($|[^{: +>.#])").unwrap();
     match re.captures(selector) {
         Some(_) => true,
@@ -266,7 +266,7 @@ mod tests {
     }
 
     #[test]
-    fn test_has_umpersand() {
+    fn test_has_ampersand() {
         let mut line = Line {
             index: 0,
             indent: 0,
@@ -275,13 +275,13 @@ mod tests {
         let truthy = ["&", " &", "\t&", "&-", "&_", "&a"];
         for s in truthy.iter() {
             line.text = s.to_string();
-            assert!(line.has_umpersand());
+            assert!(line.has_ampersand());
         }
 
         let falsy = ["a", "& ", "_&", "&:", "&+", "&{", "&>", "&.", "&#"];
         for s in falsy.iter() {
             line.text = s.to_string();
-            assert!(!line.has_umpersand());
+            assert!(!line.has_ampersand());
         }
     }
 
@@ -364,18 +364,18 @@ mod tests {
     }
 
     #[test]
-    fn test_resolve_umpersand() {
-        assert_eq!(resolve_umpersand(" &_a", vec!("p".to_string())), " p_a");
+    fn test_resolve_ampersand() {
+        assert_eq!(resolve_ampersand(" &_a", vec!("p".to_string())), " p_a");
         assert_eq!(
-            resolve_umpersand("&_a", vec!("p".to_string(), "q".to_string())),
+            resolve_ampersand("&_a", vec!("p".to_string(), "q".to_string())),
             "p_a, q_a"
         );
         assert_eq!(
-            resolve_umpersand("&_a {", vec!("p".to_string(), "q".to_string())),
+            resolve_ampersand("&_a {", vec!("p".to_string(), "q".to_string())),
             "p_a, q_a {"
         );
         assert_eq!(
-            resolve_umpersand("&_a, &_b {}", vec!("p".to_string(), "q".to_string())),
+            resolve_ampersand("&_a, &_b {}", vec!("p".to_string(), "q".to_string())),
             "p_a, q_a, p_b, q_b {}"
         );
     }
