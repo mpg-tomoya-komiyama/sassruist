@@ -1,5 +1,6 @@
-body {
-	font-size: 1.6rem;
+h1 {
+	margin: 0.5rem 0;
+	font-size: 20px;
 }
 main {
 	display: flex;
@@ -7,13 +8,9 @@ main {
 }
 textarea {
 	width: calc((100% - 1rem) / 2);
-	height: calc(100vh - 6rem);
+	height: calc(100vh - 4rem);
+	font-size: 14px;
 }
 #result {
 	background-color: #eee;
-}
-button {
-	height: 40px;
-	width: 200px;
-	margin-bottom: 0.5rem;
 }

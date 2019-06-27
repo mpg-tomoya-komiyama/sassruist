@@ -10,8 +10,6 @@ function convert () {
 	$result.scrollTop = $src.scrollTop
 }
 
-document.getElementById('convert').addEventListener('click', convert)
-
 let wait = false
 $src.addEventListener('input', () => {
 	if (wait) return
@@ -29,7 +27,18 @@ const text = [
 	'    &_c {',
 	'      color: red;',
 	'    }',
-	'  }', '}',
+	'    &:hover { color: blue; }',
+	'  }',
+	'}',
+	'',
+	'a',
+	'  &_b',
+	'    &_c',
+	'      color: red',
+	'    & > * { color: blue; }',
+	'  &_b',
+	'    color: red',
 ].join('\n')
 $src.value = text
+$src.disabled = false
 convert()
