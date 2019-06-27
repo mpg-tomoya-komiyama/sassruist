@@ -1,12 +1,27 @@
 import * as sassruist from '../pkg/sassruist'
 
-document.getElementById('convert').addEventListener('click', convert)
+const $src = document.getElementById('src')
+const $result = document.getElementById('result')
 
 function convert () {
-	const text = document.getElementById('src').value
+	const text = $src.value
 	const result = sassruist.return_string(text)
-	document.getElementById('result').value = result
+	$result.value = result
+	$result.scrollTop = $src.scrollTop
 }
+
+document.getElementById('convert').addEventListener('click', convert)
+
+let wait = false
+$src.addEventListener('input', () => {
+	if (wait) return
+
+	wait = true
+	setTimeout(() => {
+		convert()
+		wait = false
+	}, 100)
+})
 
 const text = [
 	'a {',
@@ -14,9 +29,7 @@ const text = [
 	'    &_c {',
 	'      color: red;',
 	'    }',
-	'  }',
-	'}',
+	'  }', '}',
 ].join('\n')
-document.getElementById('src').value = text
+$src.value = text
 convert()
-
