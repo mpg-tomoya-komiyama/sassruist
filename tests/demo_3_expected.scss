@@ -1,0 +1,14 @@
+@mixin sp {
+  @media screen and (max-width: 100px){
+    @content;
+  }
+}
+
+a {
+  @include sp {
+    a_b, a-b {
+      color: blue;
+    }
+  }
+  a_c {}
+}

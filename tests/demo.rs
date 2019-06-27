@@ -23,3 +23,10 @@ fn test_2_scss() {
     let expected = fs::read_to_string("./tests/demo_2_expected.scss").unwrap();
     assert_eq!(converter::perform(&text), expected);
 }
+
+#[test]
+fn test_3_scss() {
+    let text = fs::read_to_string("./tests/demo_3.scss").unwrap();
+    let expected = fs::read_to_string("./tests/demo_3_expected.scss").unwrap();
+    assert_eq!(converter::perform(&text), expected);
+}

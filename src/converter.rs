@@ -29,7 +29,7 @@ pub fn perform(text: &str) -> String {
     let mut stack: Vec<Line> = vec![];
     let mut converted_lines: Vec<String> = vec![];
     for mut line in lines {
-        if line.empty() {
+        if line.to_be_skipped() {
             converted_lines.push(line.text.clone());
             continue;
         }
@@ -62,8 +62,16 @@ pub fn perform(text: &str) -> String {
 }
 
 impl Line {
-    fn empty(&self) -> bool {
-        self.text.trim() == ""
+    fn to_be_skipped(&self) -> bool {
+        let trimmed = self.text.trim();
+        if trimmed == "" { return true; }
+
+        let re = Regex::new(r"^@.*").unwrap();
+        if re.captures(trimmed).is_some() {
+            return true;
+        }
+
+        false
     }
 
     fn has_umpersand(&self) -> bool {
@@ -209,23 +217,23 @@ mod tests {
     }
 
     #[test]
-    fn test_empty() {
+    fn test_to_be_skipped() {
         let mut line = Line {
             index: 0,
             indent: 0,
             text: "".to_string(),
         };
 
-        let truthy = ["", " ", "\t", "  ", "\t "];
+        let truthy = ["", " ", "\t", "  ", "\t ", "@", " @include"];
         for s in truthy.iter() {
             line.text = s.to_string();
-            assert!(line.empty());
+            assert!(line.to_be_skipped());
         }
 
         let falsy = ["a", " a", "\ta", "  a", "\t a"];
         for s in falsy.iter() {
             line.text = s.to_string();
-            assert!(!line.empty());
+            assert!(!line.to_be_skipped());
         }
     }
 
