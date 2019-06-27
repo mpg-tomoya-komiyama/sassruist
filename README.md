@@ -39,3 +39,5 @@ Execute build script
 sh ./build.sh
 ```
 and push master branch.
+
+Details of the demo are [here](./www/README.md).
