@@ -8,6 +8,7 @@ edition = "2018"
 clap = "2.33.0"
 regex = "1.1.7"
 wasm-bindgen = "0.2.47"
+walkdir = "2.2.8"
 
 [lib]
 name = "sassruist"
