@@ -10,5 +10,12 @@ a {
       color: blue;
     }
   }
-  a_c {}
+  a_c {
+  }
+
+  @include sp {
+    a_b, a-b {
+      color: blue;
+    }
+  }
 }

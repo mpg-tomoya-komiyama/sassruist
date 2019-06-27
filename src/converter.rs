@@ -37,6 +37,13 @@ pub fn perform(text: &str) -> String {
         if stack.len() == 0 {
             converted_lines.push(line.text.clone());
             stack.push(line);
+        } else if line.has_command() {
+            println!("{}", line.text);
+            // has command (e.g. @include)
+            while stack.len() > 0 && stack[stack.len() - 1].indent >= line.indent {
+                stack.remove(stack.len() - 1);
+            }
+            converted_lines.push(line.text.clone());
         } else {
             let before = stack[stack.len() - 1].clone();
             if before.indent < line.indent {
@@ -65,13 +72,13 @@ impl Line {
     fn to_be_skipped(&self) -> bool {
         let trimmed = self.text.trim();
         if trimmed == "" { return true; }
-
-        let re = Regex::new(r"^@.*").unwrap();
-        if re.captures(trimmed).is_some() {
-            return true;
-        }
-
+        if trimmed == "}" { return true; }
         false
+    }
+
+    fn has_command(&self) -> bool {
+        let re = Regex::new(r"^@.*").unwrap();
+        re.captures(self.text.trim()).is_some()
     }
 
     fn has_umpersand(&self) -> bool {
@@ -224,7 +231,7 @@ mod tests {
             text: "".to_string(),
         };
 
-        let truthy = ["", " ", "\t", "  ", "\t ", "@", " @include"];
+        let truthy = ["", " ", "\t", "  ", "\t ", "}"];
         for s in truthy.iter() {
             line.text = s.to_string();
             assert!(line.to_be_skipped());
@@ -234,6 +241,27 @@ mod tests {
         for s in falsy.iter() {
             line.text = s.to_string();
             assert!(!line.to_be_skipped());
+        }
+    }
+
+    #[test]
+    fn test_has_command() {
+        let mut line = Line {
+            index: 0,
+            indent: 0,
+            text: "".to_string(),
+        };
+
+        let truthy = ["@", " @include"];
+        for s in truthy.iter() {
+            line.text = s.to_string();
+            assert!(line.has_command());
+        }
+
+        let falsy = ["a", "a@"];
+        for s in falsy.iter() {
+            line.text = s.to_string();
+            assert!(!line.has_command());
         }
     }
 
