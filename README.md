@@ -1,6 +1,20 @@
 # Sassruist
 Sassruist is the evil Sass/Scss ampersand slayer.
 
+## Unimplemented
+### Only Scss
+I made a mistake and gave up.
+
+### A parent and a child sandwich @commands
+In these cases, ampersands are not resolved.
+```scss
+.parent {      
+  @include sp {
+     &__a {}   
+  }            
+}              
+```
+
 ## Usage
 ```
 USAGE:
@@ -13,17 +27,6 @@ FLAGS:
 
 ARGS:
     <path>    target file or directory path
-```
-
-## Unimplemented
-### A parent and a child sandwich @commands
-In these cases, ampersands are not resolved.
-```scss
-.parent {      
-  @include sp {
-     &__a {}   
-  }            
-}              
 ```
 
 ## Develop

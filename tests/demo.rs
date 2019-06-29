@@ -3,13 +3,6 @@ use std::fs;
 
 use sassruist::converter;
 
-// #[test]
-// fn test_1_sass() {
-//     let text = fs::read_to_string("./tests/demo_1.sass").unwrap();
-//     let expected = fs::read_to_string("./tests/demo_1_expected.sass").unwrap();
-//     assert_eq!(converter::perform(&text), expected);
-// }
-
 #[test]
 fn test_1_scss() {
     let text = fs::read_to_string("./tests/demo_1.scss").unwrap();
