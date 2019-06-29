@@ -1,7 +1,7 @@
-// extern crate sassruist;
-// use std::fs;
+extern crate sassruist;
+use std::fs;
 
-// use sassruist::converter;
+use sassruist::converter;
 
 // #[test]
 // fn test_1_sass() {
@@ -10,12 +10,12 @@
 //     assert_eq!(converter::perform(&text), expected);
 // }
 
-// #[test]
-// fn test_1_scss() {
-//     let text = fs::read_to_string("./tests/demo_1.scss").unwrap();
-//     let expected = fs::read_to_string("./tests/demo_1_expected.scss").unwrap();
-//     assert_eq!(converter::perform(&text), expected);
-// }
+#[test]
+fn test_1_scss() {
+    let text = fs::read_to_string("./tests/demo_1.scss").unwrap();
+    let expected = fs::read_to_string("./tests/demo_1_expected.scss").unwrap();
+    assert_eq!(converter::perform(&text), expected);
+}
 
 // #[test]
 // fn test_2_scss() {

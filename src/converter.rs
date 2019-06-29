@@ -64,7 +64,7 @@ pub fn perform(text: &str) -> String {
                         if removed.is_oneliner() {
                             converted_lines.push(parent.text_without_prefix.clone());
                         } else {
-                            line.text = get_indent_text(&parent.text_without_prefix) + &line.text.trim() + " " + &parent.text_without_prefix;
+                            line.text = get_indent_text(&parent.text_without_prefix) + &line.text.trim() + " " + &parent.text_without_prefix.trim();
                         }
                     }
                 }

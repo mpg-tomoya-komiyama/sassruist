@@ -1,23 +1,25 @@
 a {
-  a_b {
-    a_b-c {
+} a_b {
+} a_b-c {
       color: red;
-    }
+} a_b {
     &:hover {
       color: blue;
     }
-    a_b-cc { color: black; }
+} a_b-cc { color: black; }
+a_b {
     & > * { color: black; }
-  }
-  ad {
+} a {
+} ad {
     color: yellow;
-  }
+} a {
   f, g {
-    f_h, g_h {
+  } f_h, g_h {
       color: white;
-    }
+  } f, g {
   }
 }
 aa {
-  aa_b {}
+} aa_b {}
+aa {
 }
