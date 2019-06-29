@@ -9,7 +9,7 @@ use std::fs::{metadata, read_to_string};
 use std::fs::File;
 use std::io::Write;
 use walkdir::WalkDir;
-pub mod converter;
+use sassruist::converter;
 
 fn main() {
     let app = app_from_crate!()

@@ -17,7 +17,7 @@ crate-type = ["cdylib", "lib"]
 
 [[bin]]
 name = "sassruist"
-path = "src/bin.rs"
+path = "src/main.rs"
 required-features = ["bin"]
 
 [features]
