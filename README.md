@@ -1,5 +1,5 @@
 # Sassruist
-Sassruist is the evil Sass/Scss ampersand slayer.
+Sassruist is the evil Scss ampersand slayer.
 
 ## Unimplemented
 ### Only Scss

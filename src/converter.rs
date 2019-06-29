@@ -274,160 +274,189 @@ mod tests {
         }
     }
 
-    // #[test]
-    // fn test_to_be_skipped() {
-    //     let mut line = Line {
-    //         index: 0,
-    //         indent: 0,
-    //         text: "".to_string(),
-    //     };
+    #[test]
+    fn test_to_be_skipped() {
+        let mut line = Line {
+            index: 0,
+            indent: 0,
+            text: "".to_string(),
+            text_without_prefix: "".to_string(),
+            resolved: false,
+            selector: "".to_string(),
+        };
 
-    //     let truthy = ["", " ", "\t", "  ", "\t ", "}"];
-    //     for s in truthy.iter() {
-    //         line.text = s.to_string();
-    //         assert!(line.to_be_skipped());
-    //     }
+        let truthy = ["", " ", "\t", "  ", "\t "];
+        for s in truthy.iter() {
+            line.text = s.to_string();
+            assert!(line.to_be_skipped());
+        }
 
-    //     let falsy = ["a", " a", "\ta", "  a", "\t a"];
-    //     for s in falsy.iter() {
-    //         line.text = s.to_string();
-    //         assert!(!line.to_be_skipped());
-    //     }
-    // }
+        let falsy = ["a", " a", "\ta", "  a", "\t a", "}"];
+        for s in falsy.iter() {
+            line.text = s.to_string();
+            assert!(!line.to_be_skipped());
+        }
+    }
 
-    // #[test]
-    // fn test_has_command() {
-    //     let mut line = Line {
-    //         index: 0,
-    //         indent: 0,
-    //         text: "".to_string(),
-    //     };
+    #[test]
+    fn test_has_command() {
+        let mut line = Line {
+            index: 0,
+            indent: 0,
+            text: "".to_string(),
+            text_without_prefix: "".to_string(),
+            resolved: false,
+            selector: "".to_string(),
+        };
 
-    //     let truthy = ["@", " @include"];
-    //     for s in truthy.iter() {
-    //         line.text = s.to_string();
-    //         assert!(line.has_command());
-    //     }
+        let truthy = ["@", " @include"];
+        for s in truthy.iter() {
+            line.text = s.to_string();
+            assert!(line.has_command());
+        }
 
-    //     let falsy = ["a", "a@"];
-    //     for s in falsy.iter() {
-    //         line.text = s.to_string();
-    //         assert!(!line.has_command());
-    //     }
-    // }
+        let falsy = ["a", "a@"];
+        for s in falsy.iter() {
+            line.text = s.to_string();
+            assert!(!line.has_command());
+        }
+    }
 
-    // #[test]
-    // fn test_has_ampersand() {
-    //     let mut line = Line {
-    //         index: 0,
-    //         indent: 0,
-    //         text: "".to_string(),
-    //     };
-    //     let truthy = ["&", " &", "\t&", "&-", "&_", "&a"];
-    //     for s in truthy.iter() {
-    //         line.text = s.to_string();
-    //         assert!(line.has_ampersand());
-    //     }
+    #[test]
+    fn test_has_ampersand() {
+        let mut line = Line {
+            index: 0,
+            indent: 0,
+            text: "".to_string(),
+            text_without_prefix: "".to_string(),
+            resolved: false,
+            selector: "".to_string(),
+        };
+        let truthy = ["&", " &", "\t&", "&-", "&_", "&a"];
+        for s in truthy.iter() {
+            line.text = s.to_string();
+            assert!(line.has_ampersand());
+        }
 
-    //     let falsy = ["a", "& ", "_&", "&:", "&+", "&{", "&>", "&.", "&#"];
-    //     for s in falsy.iter() {
-    //         line.text = s.to_string();
-    //         assert!(!line.has_ampersand());
-    //     }
-    // }
+        let falsy = ["a", "& ", "_&", "&:", "&+", "&{", "&>", "&.", "&#"];
+        for s in falsy.iter() {
+            line.text = s.to_string();
+            assert!(!line.has_ampersand());
+        }
+    }
 
-    // #[test]
-    // fn test_resolve() {
-    //     let mut parent = Line {
-    //         index: 0,
-    //         indent: 0,
-    //         text: "p".to_string(),
-    //     };
-    //     let mut line = Line {
-    //         index: 1,
-    //         indent: 1,
-    //         text: "&_a".to_string(),
-    //     };
-    //     let data = [
-    //         ["p {", "& {", "& {"],
-    //         ["p {", "& > a {", "& > a {"],
-    //         ["p {", "&_a {", "p_a {"],
-    //         ["p q {", "&_a {", "p q_a {"],
-    //         ["p, q {", "&_a {", "p_a, q_a {"],
-    //     ];
-    //     for d in data.iter() {
-    //         parent.text = d[0].to_string();
-    //         line.text = d[1].to_string();
-    //         line.resolve(&parent);
-    //         assert_eq!(line.text, d[2]);
-    //     }
-    // }
+    #[test]
+    fn test_resolve() {
+        let mut parent = Line {
+            index: 0,
+            indent: 0,
+            text: "p".to_string(),
+            text_without_prefix: "p".to_string(),
+            resolved: false,
+            selector: "".to_string(),
+        };
+        let mut line = Line {
+            index: 1,
+            indent: 1,
+            text: "&_a".to_string(),
+            text_without_prefix: "&_a".to_string(),
+            resolved: false,
+            selector: "".to_string(),
+        };
+        let data = [
+            ["p {", "& {", "& {"],
+            ["p {", "& > a {", "& > a {"],
+            ["p {", "&_a {", "} p_a {"],
+            ["p q {", "&_a {", "} p q_a {"],
+            ["p, q {", "&_a {", "} p_a, q_a {"],
+        ];
+        for d in data.iter() {
+            parent.text = d[0].to_string();
+            parent.text_without_prefix = d[0].to_string();
+            line.text = d[1].to_string();
+            line.text_without_prefix = d[1].to_string();
+            line.resolve(&parent);
+            assert_eq!(line.text, d[2]);
+        }
+    }
 
-    // #[test]
-    // fn test_parse_lines() {
-    //     let lines = parse_lines(&["a", "b", " c", "d"].join("\n"));
-    //     assert_eq!(
-    //         lines,
-    //         [
-    //             Line {
-    //                 index: 0,
-    //                 indent: 0,
-    //                 text: "a".to_string()
-    //             },
-    //             Line {
-    //                 index: 1,
-    //                 indent: 0,
-    //                 text: "b".to_string()
-    //             },
-    //             Line {
-    //                 index: 2,
-    //                 indent: 1,
-    //                 text: " c".to_string()
-    //             },
-    //             Line {
-    //                 index: 3,
-    //                 indent: 0,
-    //                 text: "d".to_string()
-    //             }
-    //         ]
-    //     );
-    // }
+    #[test]
+    fn test_parse_lines() {
+        let lines = parse_lines(&["a", "b", " c", "d"].join("\n"));
+        assert_eq!(
+            lines,
+            [
+                Line {
+                    index: 0,
+                    indent: 0,
+                    text: "a".to_string(),
+                    text_without_prefix: "a".to_string(),
+                    resolved: false,
+                    selector: "".to_string(),
+                },
+                Line {
+                    index: 1,
+                    indent: 0,
+                    text: "b".to_string(),
+                    text_without_prefix: "b".to_string(),
+                    resolved: false,
+                    selector: "".to_string(),
+                },
+                Line {
+                    index: 2,
+                    indent: 1,
+                    text: " c".to_string(),
+                    text_without_prefix: " c".to_string(),
+                    resolved: false,
+                    selector: "".to_string(),
+                },
+                Line {
+                    index: 3,
+                    indent: 0,
+                    text: "d".to_string(),
+                    text_without_prefix: "d".to_string(),
+                    resolved: false,
+                    selector: "".to_string(),
+                }
+            ]
+        );
+    }
 
-    // #[test]
-    // fn test_count_indent() {
-    //     assert_eq!(count_indent("a"), 0);
-    //     assert_eq!(count_indent(" a"), 1);
-    //     assert_eq!(count_indent("  a"), 2);
-    //     assert_eq!(count_indent("  a "), 2);
-    //     assert_eq!(count_indent("\ta"), 1);
-    //     assert_eq!(count_indent("\t\ta"), 2);
-    //     assert_eq!(count_indent("\t\ta\t"), 2);
-    //     assert_eq!(count_indent(" \ta"), 2);
-    // }
+    #[test]
+    fn test_count_indent() {
+        assert_eq!(count_indent("a"), 0);
+        assert_eq!(count_indent(" a"), 1);
+        assert_eq!(count_indent("  a"), 2);
+        assert_eq!(count_indent("  a "), 2);
+        assert_eq!(count_indent("\ta"), 1);
+        assert_eq!(count_indent("\t\ta"), 2);
+        assert_eq!(count_indent("\t\ta\t"), 2);
+        assert_eq!(count_indent(" \ta"), 2);
+    }
 
-    // #[test]
-    // fn test_parse_selectors() {
-    //     assert_eq!(parse_selectors(" a "), ["a"]);
-    //     assert_eq!(parse_selectors("a b"), ["a b"]);
-    //     assert_eq!(parse_selectors("a, b"), ["a", "b"]);
-    //     assert_eq!(parse_selectors("a {"), ["a"]);
-    //     assert_eq!(parse_selectors("a { b {} }"), ["a"]);
-    // }
+    #[test]
+    fn test_parse_selectors() {
+        assert_eq!(parse_selectors(" a "), ["a"]);
+        assert_eq!(parse_selectors("a b"), ["a b"]);
+        assert_eq!(parse_selectors("a, b"), ["a", "b"]);
+        assert_eq!(parse_selectors("a {"), ["a"]);
+        assert_eq!(parse_selectors("a { b {} }"), ["a"]);
+    }
 
-    // #[test]
-    // fn test_resolve_ampersand() {
-    //     assert_eq!(resolve_ampersand(" &_a", vec!("p".to_string())), " p_a");
-    //     assert_eq!(
-    //         resolve_ampersand("&_a", vec!("p".to_string(), "q".to_string())),
-    //         "p_a, q_a"
-    //     );
-    //     assert_eq!(
-    //         resolve_ampersand("&_a {", vec!("p".to_string(), "q".to_string())),
-    //         "p_a, q_a {"
-    //     );
-    //     assert_eq!(
-    //         resolve_ampersand("&_a, &_b {}", vec!("p".to_string(), "q".to_string())),
-    //         "p_a, q_a, p_b, q_b {}"
-    //     );
-    // }
+    #[test]
+    fn test_resolve_ampersand() {
+        assert_eq!(resolve_ampersand(" &_a", "p"), "p_a");
+        assert_eq!(
+            resolve_ampersand("&_a", "p, q"),
+            "p_a, q_a"
+        );
+        assert_eq!(
+            resolve_ampersand("&_a {", "p, q"),
+            "p_a, q_a {"
+        );
+        assert_eq!(
+            resolve_ampersand("&_a, &_b {}", "p, q"),
+            "p_a, q_a, p_b, q_b {}"
+        );
+    }
 }
