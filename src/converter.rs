@@ -102,6 +102,8 @@ impl Line {
     }
 
     fn resolve(&mut self, parent: &Line) -> bool {
+        // "&.a, &_a" => "parent.a, parent_a"
+        // "&.a, &_a" => "parent.a, parent_a"
         if !self.has_ampersand() {
             return false;
         }
@@ -169,11 +171,7 @@ fn resolve_ampersand(line: &str, parent_line: &str) -> String {
     let src_selectors = parse_selectors(line);
     for s in src_selectors {
         for p in &parent_selectors {
-            if has_ampersand(&s) {
-                selectors.push(s.replace("&", &p));
-            } else {
-                selectors.push(s.clone());
-            }
+            selectors.push(s.replace("&", &p));
         }
     }
 

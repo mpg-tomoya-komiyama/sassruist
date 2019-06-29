@@ -2,14 +2,16 @@
   .a {
     margin: 0;
 
-    .a_a {}
+  } .a_a {}
+  .a {
     .i-t-s {
       display: block;
     }
     &.i-t-s {
       display: block;
     }
-    &.i-t-s, .a-t-s {
+  } .a.i-t-s, .a-t-s {
       display: block;
-    }
+  } .a {
   }
+}
