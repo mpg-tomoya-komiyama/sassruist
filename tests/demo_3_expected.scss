@@ -6,15 +6,15 @@
 
 a {
   @include sp {
-    a_b, a-b {
+    &_b, &-b {
       color: blue;
     }
   }
-  a_c {
-  }
+} a_c {
+} a {
 
   @include sp {
-    a_b, a-b {
+    &_b, &-b {
       color: blue;
     }
   }

@@ -102,6 +102,20 @@ impl Line {
     }
 
     fn resolve(&mut self, parent: &Line) -> bool {
+        // TODO
+        // .parent {
+        //   @include sp {
+        //      &__a {}
+        //   }
+        // }
+        // to
+        // @include sp {
+        //  .parent__a {}
+        // }
+        if parent.has_command() {
+            return false
+        }
+
         // "&.a, &_a" => "parent.a, parent_a"
         // "&.a, &_a" => "parent.a, parent_a"
         if !self.has_ampersand() {
