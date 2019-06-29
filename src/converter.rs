@@ -17,11 +17,11 @@ struct Line {
 /// # Examples
 ///
 /// ```
-/// //use sassruist::converter;
+/// use sassruist::converter;
 ///
-/// //let src = ["a {", " &_b {", " }", "}"].join("\n");
-/// //let exp = ["a {", " a_b {", " }", "}"].join("\n");
-/// //assert_eq!(converter::perform(&src), exp);
+/// let src = ["a {", " &_b {", " }", "}"].join("\n");
+/// let exp = ["a {", "} a_b {", "} a {", "}"].join("\n");
+/// assert_eq!(converter::perform(&src), exp);
 /// ```
 pub fn perform(text: &str) -> String {
     let lines = parse_lines(text);
@@ -31,7 +31,6 @@ pub fn perform(text: &str) -> String {
 
     let mut stack: Vec<Line> = vec![];
     let mut converted_lines: Vec<String> = vec![];
-    let size = lines.len();
     for mut line in lines {
         if line.to_be_skipped() {
             converted_lines.push(line.text.clone());
@@ -52,10 +51,8 @@ pub fn perform(text: &str) -> String {
             let before = stack[stack.len() - 1].clone();
             if before.indent < line.indent {
                 // deep scope
-                line.resolve(&before);
-                let mut line_clone = line.clone();
-                line_clone.resolved = true;
-                stack.push(line_clone);
+                line.resolved = line.resolve(&before);
+                stack.push(line.clone());
             } else {
                 // same or shallow scope
                 // pop stacked lines having deep scope
@@ -63,8 +60,8 @@ pub fn perform(text: &str) -> String {
                     let removed = stack.remove(stack.len() - 1);
                     if removed.resolved {
                         let parent = &stack[stack.len() - 1];
+                        // e.g. "&_a { }"
                         if removed.is_oneliner() {
-                            println!("{}, line:{}, removed:{}, parent:{}", removed.is_oneliner(), line.text, removed.text, parent.text);
                             converted_lines.push(parent.text_without_prefix.clone());
                         } else {
                             line.text = get_indent_text(&parent.text_without_prefix) + &line.text.trim() + " " + &parent.text_without_prefix;
@@ -87,7 +84,6 @@ impl Line {
     fn to_be_skipped(&self) -> bool {
         let trimmed = self.text.trim();
         if trimmed == "" { return true; }
-        // if trimmed == "}" { return true; }
         false
     }
 
@@ -230,34 +226,36 @@ mod tests {
                 ["a {", " &_b {}", " &_c {}", "}"].join("\n"),
                 ["a {", "} a_b {}", "a {", "} a_c {}", "a {", "}"].join("\n"),
             ],
-            // [
-            //     ["a {", " b {", "  c {}", " }", " &_d {}", "}"].join("\n"),
-            //     ["a {", " b {", "  c {}", " }", " a_d {}", "}"].join("\n"),
-            // ],
-            // [
-            //     [
-            //         "a {",
-            //         " b {",
-            //         "  c {",
-            //         "   &_cc {}",
-            //         "  }",
-            //         " }",
-            //         " &_d {}",
-            //         "}",
-            //     ]
-            //     .join("\n"),
-            //     [
-            //         "a {",
-            //         " b {",
-            //         "  c {",
-            //         "   c_cc {}",
-            //         "  }",
-            //         " }",
-            //         " a_d {}",
-            //         "}",
-            //     ]
-            //     .join("\n"),
-            // ],
+            [
+                ["a {", " b {", "  c {}", " }", " &_d {}", "}"].join("\n"),
+                ["a {", " b {", "  c {}", " }", "} a_d {}", "a {", "}"].join("\n"),
+            ],
+            [
+                [
+                    "a {",
+                    " b {",
+                    "  c {",
+                    "   &_cc {}",
+                    "  }",
+                    " }",
+                    " &_d {}",
+                    "}",
+                ]
+                .join("\n"),
+                [
+                    "a {",
+                    " b {",
+                    "  c {",
+                    "  } c_cc {}",
+                    "  c {",
+                    "  }",
+                    " }",
+                    "} a_d {}",
+                    "a {",
+                    "}",
+                ]
+                .join("\n"),
+            ],
         ];
         for d in data.iter() {
             assert_eq!(perform(&d[0]), d[1]);
