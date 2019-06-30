@@ -7,6 +7,7 @@ pub struct Block {
     // head: String,
     // body: String,
     children: Vec<Block>,
+    oneliner: bool,
 }
 
 impl Block {
@@ -14,13 +15,35 @@ impl Block {
         let mut children: Vec<Block> = vec!();
         let head_end = get_head_end(&lines);
         let block_end = get_block_end(&lines);
-        if head_end < block_end && block_end < lines.len() {
+        let oneliner = head_end == block_end;
+
+        if !oneliner && block_end < lines.len() {
             children = parse_blocks(&lines[head_end + 1..block_end].to_vec());
         }
         Block {
             lines,
             children,
+            oneliner,
         }
+    }
+
+    fn selectors(&self) -> Vec<String> {
+        let mut selectors: Vec<String> = vec![];
+        let re = Regex::new(r"[^{]*").unwrap();
+        let head_end = get_head_end(&self.lines);
+
+        for line in self.lines[..head_end + 1].to_vec() {
+            if let Some(cap) = re.captures(&line) {
+                let dropped = cap[0].to_string();
+                for s in dropped.split(',') {
+                    let trimmed = s.trim();
+                    if trimmed != "" {
+                        selectors.push(trimmed.to_string());
+                    }
+                }
+            }
+        }
+        selectors
     }
 }
 
@@ -128,6 +151,23 @@ mod tests {
         assert_eq!(block.children[1].children.len(), 0);
         assert_eq!(block.children[2].lines, vec![" b {}"]);
         assert_eq!(block.children[2].children.len(), 0);
+    }
+
+    #[test]
+    fn test_block_selectors() {
+        let block = Block::new(vec![
+                   "a {",
+                   "}",
+        ].iter().map(|s| s.to_string()).collect());
+        assert_eq!(block.selectors(), vec!["a"]);
+
+        let block = Block::new(vec![
+                   "a, b,",
+                   " ",
+                   "c, d f {",
+                   "}",
+        ].iter().map(|s| s.to_string()).collect());
+        assert_eq!(block.selectors(), vec!["a", "b", "c", "d f"]);
     }
 
     #[test]
