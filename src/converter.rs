@@ -40,13 +40,6 @@ pub fn perform(text: &str) -> String {
         if stack.len() == 0 {
             converted_lines.push(line.text.clone());
             stack.push(line);
-        // } else if line.has_command() {
-        //     println!("{}", line.text);
-        //     // has command (e.g. @include)
-        //     while stack.len() > 0 && stack[stack.len() - 1].indent >= line.indent {
-        //         stack.remove(stack.len() - 1);
-        //     }
-        //     converted_lines.push(line.text.clone());
         } else {
             let before = stack[stack.len() - 1].clone();
             if before.indent < line.indent {
