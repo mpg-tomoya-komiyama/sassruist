@@ -1,9 +1,10 @@
 extern crate regex;
 use regex::Regex;
+use std::cell::RefCell;
 
 #[derive(Debug, PartialEq)]
 pub struct Block {
-    lines: Vec<String>,
+    lines: RefCell<Vec<String>>,
     // head: String,
     // body: String,
     children: Vec<Block>,
@@ -21,7 +22,7 @@ impl Block {
             children = parse_blocks(&lines[head_end + 1..block_end].to_vec());
         }
         Block {
-            lines,
+            lines: RefCell::new(lines),
             children,
             oneliner,
         }
@@ -30,9 +31,9 @@ impl Block {
     fn selectors(&self) -> Vec<String> {
         let mut selectors: Vec<String> = vec![];
         let re = Regex::new(r"[^{]*").unwrap();
-        let head_end = get_head_end(&self.lines);
+        let head_end = get_head_end(&self.lines.borrow());
 
-        for line in self.lines[..head_end + 1].to_vec() {
+        for line in self.lines.borrow()[..head_end + 1].to_vec() {
             if let Some(cap) = re.captures(&line) {
                 let dropped = cap[0].to_string();
                 for s in dropped.split(',') {
@@ -45,6 +46,45 @@ impl Block {
         }
         selectors
     }
+
+    fn has_ampersand(&self) -> bool {
+        let re = Regex::new(r"(^| |\t)\&($|[^{: +>.#])").unwrap();
+        for selector in self.selectors() {
+            if has_ampersand(&selector) {
+                return true;
+            }
+        }
+        false
+    }
+
+    fn resolve_anpersand(&self, parent_selectors: &Vec<String>) {
+        let self_selectors = self.selectors();
+
+        let mut resolved_selectors: Vec<String> = vec![];
+        for selector in self_selectors {
+            let mut s = selector;
+            if !has_ampersand(&s) {
+                s = "& ".to_string() + &s;
+            }
+            for p in parent_selectors {
+                resolved_selectors.push(s.replace("&", &p));
+            }
+        }
+
+        let mut resolved = resolved_selectors.join(", ").to_string();
+
+        let head_end = get_head_end(&self.lines.borrow());
+        let re = Regex::new(r"\{+.*").unwrap();
+
+        resolved = get_indent_text(&self.lines.borrow()[head_end]) + &resolved;
+        if let Some(cap) = re.captures(&self.lines.borrow()[head_end]) {
+            resolved = resolved + " " + &cap[0];
+        }
+
+        self.lines.borrow_mut().drain(..head_end);
+        self.lines.borrow_mut()[0] = resolved.clone();
+    }
+
 }
 
 pub fn parse_blocks(lines: &Vec<String>) -> Vec<Block> {
@@ -110,6 +150,14 @@ fn get_indent_text(line: &String) -> String {
     }
 }
 
+fn has_ampersand(selector: &str) -> bool {
+    let re = Regex::new(r"(^| |\t)\&($|[^{: +>.#])").unwrap();
+    match re.captures(selector) {
+        Some(_) => true,
+        None => false,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -127,10 +175,10 @@ mod tests {
                    "}",
         ].iter().map(|s| s.to_string()).collect());
         assert_eq!(block.children.len(), 2);
-        assert_eq!(block.children[0].lines, vec![" b {", "  c {", "  }", " }"]);
+        assert_eq!(block.children[0].lines.borrow(), vec![" b {", "  c {", "  }", " }"]);
         assert_eq!(block.children[0].children.len(), 1);
-        assert_eq!(block.children[0].children[0].lines, vec!["  c {", "  }"]);
-        assert_eq!(block.children[1].lines, vec![" b {", " }"]);
+        assert_eq!(block.children[0].children[0].lines.borrow(), vec!["  c {", "  }"]);
+        assert_eq!(block.children[1].lines.borrow(), vec![" b {", " }"]);
         assert_eq!(block.children[1].children.len(), 0);
     }
 
@@ -145,11 +193,11 @@ mod tests {
                    "}",
         ].iter().map(|s| s.to_string()).collect());
         assert_eq!(block.children.len(), 3);
-        assert_eq!(block.children[0].lines, vec![" b {}"]);
+        assert_eq!(block.children[0].lines.borrow(), vec![" b {}"]);
         assert_eq!(block.children[0].children.len(), 0);
-        assert_eq!(block.children[1].lines, vec![" c {", " }"]);
+        assert_eq!(block.children[1].lines.borrow(), vec![" c {", " }"]);
         assert_eq!(block.children[1].children.len(), 0);
-        assert_eq!(block.children[2].lines, vec![" b {}"]);
+        assert_eq!(block.children[2].lines.borrow(), vec![" b {}"]);
         assert_eq!(block.children[2].children.len(), 0);
     }
 
@@ -168,6 +216,22 @@ mod tests {
                    "}",
         ].iter().map(|s| s.to_string()).collect());
         assert_eq!(block.selectors(), vec!["a", "b", "c", "d f"]);
+    }
+
+    #[test]
+    fn test_block_has_ampersand() {
+        let block = Block::new(vec![
+                   "a {",
+                   "}",
+        ].iter().map(|s| s.to_string()).collect());
+        assert_eq!(block.has_ampersand(), false);
+
+        let block = Block::new(vec![
+                   "a, &b,",
+                   "c, d f {",
+                   "}",
+        ].iter().map(|s| s.to_string()).collect());
+        assert_eq!(block.has_ampersand(), true);
     }
 
     #[test]
