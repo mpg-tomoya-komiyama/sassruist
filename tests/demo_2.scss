@@ -2,15 +2,15 @@
   .a {
     margin: 0;
 
-    &_a {}
+    &_a, .b {}
     .i-t-s {
       display: block;
     }
     &.i-t-s {
-      display: block;
+      display: flex;
     }
     &.i-t-s, &-t-s {
-      display: block;
+      display: inline;
     }
   }
 }

@@ -121,6 +121,7 @@ impl Line {
         if !self.has_ampersand() {
             return false;
         }
+
         self.selector = parse_selectors(&self.text).join(", ");
         let text = resolve_ampersand(&self.text, &parent.text_without_prefix);
         self.text = get_indent_text(&parent.text_without_prefix) + "} " + &text;
@@ -183,7 +184,11 @@ fn resolve_ampersand(line: &str, parent_line: &str) -> String {
     let mut selectors: Vec<String> = vec![];
     let parent_selectors = parse_selectors(parent_line);
     let src_selectors = parse_selectors(line);
-    for s in src_selectors {
+    for selector in src_selectors {
+        let mut s = selector;
+        if !has_any_ampersand(&s) {
+            s = "& ".to_string() + &s;
+        }
         for p in &parent_selectors {
             selectors.push(s.replace("&", &p));
         }
@@ -201,6 +206,14 @@ fn resolve_ampersand(line: &str, parent_line: &str) -> String {
 
 fn has_ampersand(selector: &str) -> bool {
     let re = Regex::new(r"(^| |\t)\&($|[^{: +>.#])").unwrap();
+    match re.captures(selector) {
+        Some(_) => true,
+        None => false,
+    }
+}
+
+fn has_any_ampersand(selector: &str) -> bool {
+    let re = Regex::new(r"&").unwrap();
     match re.captures(selector) {
         Some(_) => true,
         None => false,
@@ -446,6 +459,7 @@ mod tests {
     #[test]
     fn test_resolve_ampersand() {
         assert_eq!(resolve_ampersand(" &_a", "p"), "p_a");
+        assert_eq!(resolve_ampersand(" &_a, b", "p"), "p_a, p b");
         assert_eq!(
             resolve_ampersand("&_a", "p, q"),
             "p_a, q_a"
