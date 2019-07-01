@@ -29,15 +29,7 @@ const text = [
 	'    }',
 	'    &:hover { color: blue; }',
 	'  }',
-	'}',
-	'',
-	'a',
-	'  &_b',
-	'    &_c',
-	'      color: red',
-	'    & > * { color: blue; }',
-	'  &_b',
-	'    color: red',
+	'}'
 ].join('\n')
 $src.value = text
 $src.disabled = false
